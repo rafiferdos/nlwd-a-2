@@ -1,5 +1,5 @@
-import { databaseInitialization } from "./db"
+import { databaseInitializer } from "./db"
 
 const main = () => {
-  databaseInitialization()
+  databaseInitializer()
 }
