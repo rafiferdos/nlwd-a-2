@@ -1,5 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { StatusCodes } from 'http-status-codes'
+import jwt from 'jsonwebtoken'
+import config from '../../config'
 import { pool } from '../../db'
 import AppError from '../../utils/AppError'
 import { IUser } from './auth.interface'
@@ -29,13 +31,30 @@ const registerIntoDB = async (userData: IUser) => {
 const loginIntoDB = async (payload: { email: string; password: string }) => {
   const { email, password } = payload
 
-  const userData = await pool.query(
+  const result = await pool.query(
     `
       SELECT * FROM users WHERE email=$1
-    `
+    `,
+    [email]
   )
-  if (userData.rows.length === 0)
-    throw new AppError(StatusCodes.BAD_REQUEST, 'Invalid things entered')
+
+  const user = result.rows[0]
+  if (!user)
+    throw new AppError(StatusCodes.UNAUTHORIZED, 'User does not exists')
+
+  const isPasswordValidated = bcrypt.compare(password, user.password)
+  if (!isPasswordValidated)
+    throw new AppError(StatusCodes.UNAUTHORIZED, 'Wrong Credentials')
+
+  const jwtPayload = {
+    id: user.id,
+    name: user.name,
+    role: user.role
+  }
+
+  delete user.password
+  const accessToken = jwt.sign(jwtPayload, config.jwt_secret)
+  return { token: accessToken, user }
 }
 
 export const userService = {
