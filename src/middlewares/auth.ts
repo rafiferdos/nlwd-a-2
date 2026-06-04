@@ -31,6 +31,7 @@ const auth = (...roles: TUserRole[]) => {
         throw new AppError(StatusCodes.FORBIDDEN, 'Forbidden')
 
       req.user = decoded
+      next()
     } catch (error) {
       next(error)
     }
