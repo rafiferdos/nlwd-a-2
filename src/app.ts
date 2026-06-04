@@ -1,6 +1,7 @@
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
-import express, { Application } from 'express'
+import express, { Application, Request, Response } from 'express'
+import { StatusCodes } from 'http-status-codes'
 import config from './config'
 import globalErrorHandler from './utils/globalErrorHandler'
 
@@ -14,6 +15,13 @@ app.use(
     credentials: true
   })
 )
+
+//basic home route
+app.use('/', (req: Request, res: Response) => {
+  res.status(StatusCodes.OK).json({
+    message: 'server is doing its works'
+  })
+})
 
 app.use(globalErrorHandler)
 
