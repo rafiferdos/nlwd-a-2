@@ -2,6 +2,7 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express, { Application } from 'express'
 import config from './config'
+import globalErrorHandler from './utils/globalErrorHandler'
 
 const app: Application = express()
 
@@ -13,5 +14,7 @@ app.use(
     credentials: true
   })
 )
+
+app.use(globalErrorHandler)
 
 export default app
