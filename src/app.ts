@@ -18,13 +18,19 @@ app.use(
 )
 
 //basic home route
-app.use('/', (req: Request, res: Response) => {
+app.get('/', (req: Request, res: Response) => {
   res.status(StatusCodes.OK).json({
     message: 'server is doing its works'
   })
 })
 
+//* auth routes
 app.use('/api/auth', AuthRoutes)
+
+//* 404
+app.use((req: Request, res: Response) => {
+  res.status(404).json({ success: false, message: 'Route not found' })
+})
 
 app.use(globalErrorHandler)
 
