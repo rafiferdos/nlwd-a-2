@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import catchAsync from '../../utils/catchAsync'
+import sendResponse from '../../utils/sendResponse'
 import { authServices } from './auth.service'
 
 const registerUser = catchAsync(async (req: Request, res: Response) => {
@@ -12,7 +13,12 @@ const registerUser = catchAsync(async (req: Request, res: Response) => {
       message: 'Validation Error',
       errors: 'Name, email, and password are strictly required.'
     })
-  
+
   const result = await authServices.register(req.body)
-  
+  sendResponse(res, {
+    statusCode: StatusCodes.CREATED,
+    message: 'User registered successfully',
+    data: result
+  })
 })
+
