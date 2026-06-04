@@ -57,7 +57,7 @@ const loginIntoDB = async (payload: { email: string; password: string }) => {
   return { token: accessToken, user }
 }
 
-export const userService = {
+export const authServices = {
   register: registerIntoDB,
   login: loginIntoDB
 }
