@@ -5,6 +5,7 @@ import { StatusCodes } from 'http-status-codes'
 import config from './config'
 import { AuthRoutes } from './modules/auth/auth.route'
 import globalErrorHandler from './utils/globalErrorHandler'
+import auth from './middlewares/auth'
 
 const app: Application = express()
 
@@ -26,6 +27,13 @@ app.get('/', (req: Request, res: Response) => {
 
 //* auth routes
 app.use('/api/auth', AuthRoutes)
+
+//! test route
+app.get('/api/test-role', auth('maintainer', 'contributor'), (req: Request, res: Response) => {
+  res.status(StatusCodes.OK).json({
+    message: 'good'
+  })
+})
 
 //* 404
 app.use((req: Request, res: Response) => {
