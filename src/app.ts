@@ -6,6 +6,7 @@ import config from './config'
 import { AuthRoutes } from './modules/auth/auth.route'
 import globalErrorHandler from './utils/globalErrorHandler'
 import auth from './middlewares/auth'
+import { IssuesRoute } from './modules/issues/issues.route'
 
 const app: Application = express()
 
@@ -27,6 +28,9 @@ app.get('/', (req: Request, res: Response) => {
 
 //* auth routes
 app.use('/api/auth', AuthRoutes)
+
+//* issues routes
+app.use('/api/issues', IssuesRoute)
 
 //! test route
 app.get('/api/test-role', auth('maintainer', 'contributor'), (req: Request, res: Response) => {
