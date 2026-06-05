@@ -9,12 +9,12 @@ const createIssue = catchAsync(async (req: Request, res: Response) => {
   const { title, description, type } = req.body
   const reporter_id = req.user.id
 
-  if (!title || title > 150)
+  if (!title || title.length > 150)
     throw new AppError(
       StatusCodes.BAD_REQUEST,
       'Title is required and must be maximum 150 characters.'
     )
-  if (!description || description < 20)
+  if (!description || description.length < 20)
     throw new AppError(
       StatusCodes.BAD_REQUEST,
       'Description is required and must be minimum 20 characters.'
