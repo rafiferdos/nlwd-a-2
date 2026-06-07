@@ -65,7 +65,11 @@ const getAllIssue = catchAsync(async (req: Request, res: Response) => {
 })
 
 const updateIssue = catchAsync(async (req: Request, res: Response) => {
-  const result = await IssuesServices.update(Number(req.params.id), req.body, req.user)
+  const result = await IssuesServices.update(
+    Number(req.params.id),
+    req.body,
+    req.user
+  )
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
@@ -74,8 +78,19 @@ const updateIssue = catchAsync(async (req: Request, res: Response) => {
   })
 })
 
+const deleteIssue = catchAsync(async (req: Request, res: Response) => {
+  await IssuesServices.delete(Number(req.params.id), req.user)
+
+  // Using raw res.json to exactly match the requirement's payload structure
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: 'Issue deleted successfully'
+  })
+})
+
 export const IssuesController = {
   create: createIssue,
   getAll: getAllIssue,
-  update: updateIssue
+  update: updateIssue,
+  delete: deleteIssue
 }

@@ -138,8 +138,27 @@ const updateIssueIntoDB = async (
   return updatedResult.rows[0]
 }
 
+const deleteIssueFromDB = async (id: number, user: JwtPayload) => {
+  if (user.role !== 'maintainer') {
+    throw new AppError(
+      StatusCodes.FORBIDDEN,
+      'Access Denied. Only maintainers can delete issues.'
+    )
+  }
+
+  const deleteQuery = 'DELETE FROM issues WHERE id = $1 RETURNING id'
+  const { rowCount } = await pool.query(deleteQuery, [id])
+
+  if (rowCount === 0) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'Issue not found')
+  }
+
+  return null
+}
+
 export const IssuesServices = {
   create: createIssueIntoDB,
   getAll: getAllIssuesFromDB,
-  update: updateIssueIntoDB
+  update: updateIssueIntoDB,
+  delete: deleteIssueFromDB
 }
