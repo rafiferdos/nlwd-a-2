@@ -56,7 +56,7 @@ const getAllIssue = catchAsync(async (req: Request, res: Response) => {
     )
 
   const result = await IssuesServices.getAll(req.query)
-  
+
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     message: 'Issues retrieved successfully',
@@ -64,7 +64,18 @@ const getAllIssue = catchAsync(async (req: Request, res: Response) => {
   })
 })
 
+const updateIssue = catchAsync(async (req: Request, res: Response) => {
+  const result = await IssuesServices.update(Number(req.params.id), req.body, req.user)
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    message: 'Issue updated successfully',
+    data: result
+  })
+})
+
 export const IssuesController = {
   create: createIssue,
-  getAll: getAllIssue
+  getAll: getAllIssue,
+  update: updateIssue
 }

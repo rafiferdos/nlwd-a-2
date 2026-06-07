@@ -1,5 +1,8 @@
+import { StatusCodes } from 'http-status-codes'
+import { JwtPayload } from 'jsonwebtoken'
 import { pool } from '../../db'
-import { ICreateIssuePayload } from './issues.interface'
+import AppError from '../../utils/AppError'
+import { ICreateIssuePayload, IIssue } from './issues.interface'
 
 const createIssueIntoDB = async (payload: ICreateIssuePayload) => {
   const insertQuery = `
@@ -59,7 +62,84 @@ const getAllIssuesFromDB = async (query: Record<string, unknown>) => {
   return mergedIssues
 }
 
+const updateIssueIntoDB = async (
+  id: number,
+  payload: IIssue,
+  user: JwtPayload
+) => {
+  const issueQuery = 'SELECT * FROM issues WHERE id=$1'
+  const { rows } = await pool.query(issueQuery, [id])
+
+  if (rows.length === 0)
+    throw new AppError(StatusCodes.NOT_FOUND, 'Issue not found')
+
+  const currentIssue = rows[0]
+
+  if (user.role === 'contributor') {
+    if (currentIssue.reporter_id !== user.id)
+      throw new AppError(
+        StatusCodes.FORBIDDEN,
+        'You can only update your own issues.'
+      )
+
+    if (currentIssue.status !== 'open')
+      throw new AppError(
+        StatusCodes.CONFLICT,
+        'You cannot edit an issue that is already in progress or resolved.'
+      )
+
+    if (payload.status && payload.status !== currentIssue.status)
+      throw new AppError(
+        StatusCodes.FORBIDDEN,
+        'Contributors cannot change the workflow status.'
+      )
+  }
+
+  const updates: string[] = []
+  const values: unknown[] = []
+  let count = 1
+
+  if (payload.title) {
+    updates.push(`title = $${count}`)
+    values.push(payload.title)
+    count++
+  }
+  if (payload.description) {
+    updates.push(`description = $${count}`)
+    values.push(payload.description)
+    count++
+  }
+  if (payload.type) {
+    updates.push(`type = $${count}`)
+    values.push(payload.type)
+    count++
+  }
+
+  if (payload.status) {
+    updates.push(`status = $${count}`)
+    values.push(payload.status)
+    count++
+  }
+
+  updates.push(`updated_at = CURRENT_TIMESTAMP`)
+
+  if (updates.length === 1) return currentIssue
+
+  values.push(id)
+
+  const updateQuery = `
+  UPDATE issues 
+  SET ${updates.join(', ')} 
+  WHERE id = $${count} 
+  RETURNING *;
+`
+
+  const updatedResult = await pool.query(updateQuery, values)
+  return updatedResult.rows[0]
+}
+
 export const IssuesServices = {
   create: createIssueIntoDB,
-  getAll: getAllIssuesFromDB
+  getAll: getAllIssuesFromDB,
+  update: updateIssueIntoDB
 }
