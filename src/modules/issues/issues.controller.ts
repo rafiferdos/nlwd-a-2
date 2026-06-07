@@ -42,7 +42,26 @@ const createIssue = catchAsync(async (req: Request, res: Response) => {
 
 const getAllIssue = catchAsync(async (req: Request, res: Response) => {
   const { status, type } = req.query
+
+  if (status && !['open', 'in_progress', 'resolved'].includes(status as string))
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      'Invalid status query. Must be open, in_progress, or resolved.'
+    )
+
+  if (type && !['bug', 'feature_request'].includes(type as string))
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      'Invalid type query. Must be bug or feature_request.'
+    )
+
   const result = await IssuesServices.getAll(req.query)
+  
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    message: 'Issues retrieved successfully',
+    data: result
+  })
 })
 
 export const IssuesController = {
