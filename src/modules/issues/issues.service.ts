@@ -34,6 +34,29 @@ const getAllIssuesFromDB = async (query: Record<string, unknown>) => {
   if (conditions.length > 0) {
     baseQuery += ' WHERE ' + conditions.join(' AND ')
   }
+
+  const issueResult = await pool.query(baseQuery, values)
+  if (issueResult.rows.length === 0) return []
+
+  const reporterIds = [
+    ...new Set(issueResult.rows.map((issue) => issue.reporter_id))
+  ]
+
+  const userQuery = 'SELECT id, name, role FROM users WHERE id = ANY($1::int[])'
+  const userResult = await pool.query(userQuery, [reporterIds])
+
+  const mergedIssues = issueResult.rows.map((issue) => {
+    const matchedReporter = userResult.rows.find(
+      (user) => user.id === issue.reporter_id
+    )
+
+    return {
+      ...issue,
+      reporter: matchedReporter
+    }
+  })
+
+  return mergedIssues
 }
 
 export const IssuesServices = {
