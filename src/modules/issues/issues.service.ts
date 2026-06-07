@@ -18,6 +18,25 @@ const createIssueIntoDB = async (payload: ICreateIssuePayload) => {
   return result.rows[0]
 }
 
+const getAllIssuesFromDB = async (query: Record<string, unknown>) => {
+  let baseQuery = 'SELECT * FROM issues'
+  const conditions: string[] = []
+  const values: unknown[] = []
+
+  if (query.status) {
+    values.push(query.status)
+    conditions.push(`status = $${values.length}`)
+  }
+  if (query.type) {
+    values.push(query.type)
+    conditions.push(`type = $${values.length}`)
+  }
+  if (conditions.length > 0) {
+    baseQuery += ' WHERE ' + conditions.join(' AND ')
+  }
+}
+
 export const IssuesServices = {
-  create: createIssueIntoDB
+  create: createIssueIntoDB,
+  getAll: getAllIssuesFromDB
 }

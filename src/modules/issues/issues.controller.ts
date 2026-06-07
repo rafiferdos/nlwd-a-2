@@ -40,6 +40,12 @@ const createIssue = catchAsync(async (req: Request, res: Response) => {
   })
 })
 
+const getAllIssue = catchAsync(async (req: Request, res: Response) => {
+  const { status, type } = req.query
+  const result = await IssuesServices.getAll(req.query)
+})
+
 export const IssuesController = {
-  create: createIssue
+  create: createIssue,
+  getAll: getAllIssue
 }
