@@ -1,1 +1,1 @@
-status, type
+;(status, type)

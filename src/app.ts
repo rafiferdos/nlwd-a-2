@@ -33,11 +33,15 @@ app.use('/api/auth', AuthRoutes)
 app.use('/api/issues', IssuesRoute)
 
 //! test route
-app.get('/api/test-role', auth('maintainer', 'contributor'), (req: Request, res: Response) => {
-  res.status(StatusCodes.OK).json({
-    message: 'good'
-  })
-})
+app.get(
+  '/api/test-role',
+  auth('maintainer', 'contributor'),
+  (req: Request, res: Response) => {
+    res.status(StatusCodes.OK).json({
+      message: 'good'
+    })
+  }
+)
 
 //* 404
 app.use((req: Request, res: Response) => {
