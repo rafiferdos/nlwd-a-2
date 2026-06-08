@@ -5,7 +5,8 @@ import { IssuesController } from './issues.controller'
 const router = Router()
 
 router.post('/', auth(), IssuesController.create)
-router.get('/', auth(), IssuesController.getAll)
+router.get('/', IssuesController.getAll)
+router.get('/:id', IssuesController.getSingle)
 router.patch('/:id', auth('contributor', 'maintainer'), IssuesController.update)
 router.delete('/:id', auth(), IssuesController.delete)
 

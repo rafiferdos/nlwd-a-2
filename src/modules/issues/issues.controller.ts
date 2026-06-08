@@ -34,7 +34,7 @@ const createIssue = catchAsync(async (req: Request, res: Response) => {
   const result = await IssuesServices.create(payload)
 
   sendResponse(res, {
-    statusCode: StatusCodes.OK,
+    statusCode: StatusCodes.CREATED,
     message: 'Issue created successfully',
     data: result
   })
@@ -60,6 +60,16 @@ const getAllIssue = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     message: 'Issues retrieved successfully',
+    data: result
+  })
+})
+
+const getSingleIssue = catchAsync(async (req: Request, res: Response) => {
+  const result = await IssuesServices.getSingle(Number(req.params.id))
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    message: 'Issue retrieved successfully',
     data: result
   })
 })
@@ -91,6 +101,7 @@ const deleteIssue = catchAsync(async (req: Request, res: Response) => {
 export const IssuesController = {
   create: createIssue,
   getAll: getAllIssue,
+  getSingle: getSingleIssue,
   update: updateIssue,
   delete: deleteIssue
 }

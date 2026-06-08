@@ -11,8 +11,11 @@ const auth = (...roles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // console.log(roles)
     // console.log(req.headers.authorization)
-    const token = req.headers.authorization
-    if (!token) throw new AppError(StatusCodes.UNAUTHORIZED, 'Unauthorized')
+    const authHeader = req.headers.authorization
+    if (!authHeader) throw new AppError(StatusCodes.UNAUTHORIZED, 'Unauthorized')
+
+    // Handle token with or without 'Bearer ' prefix
+    const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader
 
     const decoded = jwt.verify(token, config.jwt_secret) as JwtPayload
     const result = await pool.query(

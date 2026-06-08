@@ -26,7 +26,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, _next) => {
     return
   }
 
-  // Prisma / DB errors (PERN project তো)
+  // PostgreSQL errors
   if (
     typeof err === 'object' &&
     err !== null &&
@@ -35,7 +35,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, _next) => {
   ) {
     const code = (err as { code: string }).code
 
-    if (code === 'P2002') {
+    if (code === '23505') { // unique_violation
       sendResponse(res, {
         statusCode: 409,
         message: 'Duplicate entry — resource already exists'
@@ -43,10 +43,10 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, _next) => {
       return
     }
 
-    if (code === 'P2025') {
+    if (code === '23503') { // foreign_key_violation
       sendResponse(res, {
         statusCode: 404,
-        message: 'Record not found'
+        message: 'Related record not found'
       })
       return
     }

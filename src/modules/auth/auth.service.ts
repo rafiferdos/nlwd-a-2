@@ -42,7 +42,7 @@ const loginIntoDB = async (payload: { email: string; password: string }) => {
   if (!user)
     throw new AppError(StatusCodes.UNAUTHORIZED, 'User does not exists')
 
-  const isPasswordValidated = bcrypt.compare(password, user.password)
+  const isPasswordValidated = await bcrypt.compare(password, user.password)
   if (!isPasswordValidated)
     throw new AppError(StatusCodes.UNAUTHORIZED, 'Wrong Credentials')
 

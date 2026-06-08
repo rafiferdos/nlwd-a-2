@@ -29,8 +29,11 @@ const sendResponse = <T>(res: Response, payload: TResponsePayload<T>): void => {
   // Base shape — no extra null fields on success
   const body: Record<string, unknown> = {
     success,
-    message: message ?? (success ? 'Success' : 'Failed'),
-    data: 'data' in payload ? (payload.data ?? null) : null
+    message: message ?? (success ? 'Success' : 'Failed')
+  }
+
+  if (success) {
+    body.data = 'data' in payload ? (payload.data ?? null) : null
   }
 
   if ('meta' in payload && payload.meta) {

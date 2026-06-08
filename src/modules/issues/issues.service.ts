@@ -38,6 +38,12 @@ const getAllIssuesFromDB = async (query: Record<string, unknown>) => {
     baseQuery += ' WHERE ' + conditions.join(' AND ')
   }
 
+  if (query.sort === 'oldest') {
+    baseQuery += ' ORDER BY created_at ASC'
+  } else {
+    baseQuery += ' ORDER BY created_at DESC'
+  }
+
   const issueResult = await pool.query(baseQuery, values)
   if (issueResult.rows.length === 0) return []
 
@@ -60,6 +66,22 @@ const getAllIssuesFromDB = async (query: Record<string, unknown>) => {
   })
 
   return mergedIssues
+}
+
+const getSingleIssueFromDB = async (id: number) => {
+  const issueQuery = 'SELECT * FROM issues WHERE id=$1'
+  const issueResult = await pool.query(issueQuery, [id])
+  if (issueResult.rows.length === 0)
+    throw new AppError(StatusCodes.NOT_FOUND, 'Issue not found')
+
+  const issue = issueResult.rows[0]
+  const userQuery = 'SELECT id, name, role FROM users WHERE id=$1'
+  const userResult = await pool.query(userQuery, [issue.reporter_id])
+  
+  return {
+    ...issue,
+    reporter: userResult.rows[0] || null
+  }
 }
 
 const updateIssueIntoDB = async (
@@ -159,6 +181,7 @@ const deleteIssueFromDB = async (id: number, user: JwtPayload) => {
 export const IssuesServices = {
   create: createIssueIntoDB,
   getAll: getAllIssuesFromDB,
+  getSingle: getSingleIssueFromDB,
   update: updateIssueIntoDB,
   delete: deleteIssueFromDB
 }
